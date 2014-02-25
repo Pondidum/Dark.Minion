@@ -3,8 +3,11 @@
 ## Author: Darkend / DarkStorm / Zenedar / EU
 ## Version: 0.0.1
 ## Notes: Small helpers to make life easier.
+## RequiredDeps: Dark.Core
 
 config.lua
 initialise.lua
+
+features\autoSell.lua
 
 run.lua
