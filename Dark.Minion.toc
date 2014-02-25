@@ -10,5 +10,6 @@ initialise.lua
 
 features\autoSell.lua
 features\autoRepair.lua
+features\buyStack.lua
 
 run.lua
