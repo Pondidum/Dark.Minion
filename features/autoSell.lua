@@ -4,6 +4,17 @@ local config = ns.config
 local core = Dark.core
 local events = core.events.new()
 
+local NUM_BAG_FRAMES = NUM_BAG_FRAMES
+local ITEM_QUALITY_POOR = ITEM_QUALITY_POOR
+
+local GetContainerNumSlots = GetContainerNumSlots
+local GetContainerItemLink = GetContainerItemLink
+local GetContainerItemID = GetContainerItemID
+local GetItemInfo = GetItemInfo
+local GetContainerItemInfo = GetContainerItemInfo
+local UseContainerItem = UseContainerItem
+local PickupMerchantItem = PickupMerchantItem
+
 local autoSell = function()
 
 	local total = 0
