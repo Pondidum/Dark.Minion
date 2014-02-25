@@ -1,0 +1,10 @@
+## Interface: 50400
+## Title: Dark.Minion
+## Author: Darkend / DarkStorm / Zenedar / EU
+## Version: 0.0.1
+## Notes: Small helpers to make life easier.
+
+config.lua
+initialise.lua
+
+run.lua
