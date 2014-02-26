@@ -11,5 +11,6 @@ initialise.lua
 features\autoSell.lua
 features\autoRepair.lua
 features\buyStack.lua
+features\mailTaker.lua
 
 run.lua
