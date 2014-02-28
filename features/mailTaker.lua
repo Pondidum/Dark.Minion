@@ -14,6 +14,10 @@ local mailProcessor = {
 			print("Dark.Minion: Mail:", message)
 		end
 
+		local finally = function()
+			events.unregister("UI_ERROR_MESSAGE")
+		end
+
 		local onErrorMessage = function(self, event, message)
 			if message == ERR_INV_FULL then
 				finally()
@@ -21,25 +25,36 @@ local mailProcessor = {
 			end
 		end
 
-		local finally = function()
-			events.unregister("UI_ERROR_MESSAGE")
-			events.unregisterOnUpdate()
-		end
+		local takeMail = function()
 
-		local onUpdate = function()
+			local lastItem
 
-			if not InboxFrame:IsVisible() then
-				finally()
-				printMessage("No mailbox open/in range.")
+			while lastItem > 0
+
+				if not InboxFrame:IsVisible() then
+					finally()
+					printMessage("No mailbox open/in range.")
+				end
+
+				local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(lastItem)
+
+				if numItems > 0 or (money and not cod) then
+					action(index)
+				end
+
+				lastItem = lastItem - 1
+
 			end
 
+			finally()
+
 		end
 
-
-
 		this.process = function()
+
 			events.register("UI_ERROR_MESSAGE", onErrorMessage)
-			events.registerOnUpdate(onUpdate)
+			takeMail()
+
 		end
 
 		return this
