@@ -26,6 +26,8 @@ local mailProcessor = {
 			events.unregisterOnUpdate()
 		end
 
+		local lastItem
+
 		local onUpdate = function()
 
 			if not InboxFrame:IsVisible() then
@@ -33,11 +35,20 @@ local mailProcessor = {
 				printMessage("No mailbox open/in range.")
 			end
 
+			local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(lastItem)
+
+			if numItems > 0 or (money and not cod) then
+				action(index)
+			end
+
+			lastItem = lastItem - 1
+
 		end
 
-
-
 		this.process = function()
+
+			lastItem = GetInboxNumItems()
+
 			events.register("UI_ERROR_MESSAGE", onErrorMessage)
 			events.registerOnUpdate(onUpdate)
 		end
