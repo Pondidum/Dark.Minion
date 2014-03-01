@@ -27,7 +27,7 @@ local mailProcessor = {
 
 		local takeMail = function()
 
-			local lastItem
+			local lastItem = GetInboxNumItems()
 
 			while lastItem > 0
 
@@ -39,7 +39,7 @@ local mailProcessor = {
 				local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(lastItem)
 
 				if numItems > 0 or (money and not cod) then
-					action(index)
+					action(lastItem)
 				end
 
 				lastItem = lastItem - 1
