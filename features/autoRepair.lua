@@ -46,10 +46,7 @@ local autoRepair = function()
 
 end
 
-ns.features.add({
-
-	name = "AutoRepair",
-
+local controller = {
 	enable = function()
 		events.register("MERCHANT_SHOW", autoRepair)
 	end,
@@ -61,5 +58,14 @@ ns.features.add({
 	isEnabled = function()
 		return events.isRegistered("MERCHANT_SHOW")
 	end,
+}
+
+ns.features.add({
+
+	name = "AutoRepair",
+
+	enable = controller.enable,
+	disable = controller.disable,
+	isEnabled = controller.isEnabled,
 
 })
