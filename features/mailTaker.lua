@@ -6,56 +6,59 @@ local events = core.events.new()
 
 local mailProcessor = {
 
-	new = function(action)
+	new = function(host, action)
 
-		local this = {}
+		local searcher = host:CreateAnimationGroup()
+		searcher:SetLooping("REPEAT")
 
-		local printMessage = function(message)
-			print("Dark.Minion: Mail:", message)
-		end
+		local a = searcher:CreateAnimation()
+		a:SetDuration(0.5)
 
-		local finally = function()
+		local currentItem = 0
+
+		local finally = function(message)
+			print("Dark.MinionMail:", message)
+			searcher:Stop()
 			events.unregister("UI_ERROR_MESSAGE")
 		end
 
-		local onErrorMessage = function(self, event, message)
+		local onError = function(sender, event, message)
 			if message == ERR_INV_FULL then
-				finally()
-				printMessage("Stopped, Inventory was full.")
+				finally("Stopped, Inventory was full.")
 			end
 		end
 
-		local takeMail = function()
+		local process = function()
+			currentItem = GetInboxNumItems()
+			events.register("UI_ERROR_MESSAGE", onError)
+			searcher:Play()
+		end
 
-			local lastItem = GetInboxNumItems()
+		searcher:SetScript("OnLoop", function()
 
-			while lastItem > 0 do
-
-				if not InboxFrame:IsVisible() then
-					finally()
-					printMessage("No mailbox open/in range.")
-				end
-
-				local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(lastItem)
-
-				if numItems > 0 or (money and not cod) then
-					action(lastItem)
-				end
-
-				lastItem = lastItem - 1
-
+			if currentItem <= 0 then
+				finally("Reached the end.")
+				return
 			end
 
-			finally()
+			if not InboxFrame:IsVisible() then
+				finally("No Inbox in range.")
+				return
+			end
 
-		end
+			local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(currentItem)
 
-		this.process = function()
+			if ((numItems and numItems > 0) or (money and money > 0)) and not cod then
+				action(currentItem)
+			end
 
-			events.register("UI_ERROR_MESSAGE", onErrorMessage)
-			takeMail()
+			currentItem = currentItem - 1
 
-		end
+		end)
+
+		local this = {
+			process = process,
+		}
 
 		return this
 
@@ -65,24 +68,24 @@ local mailProcessor = {
 
 
 
-local takeAll = function()
+local takeAll = function(self)
 
 	local action = function(index)
 		AutoLootMailItem(index)
 	end
 
-	local mailbox = mailProcessor.new(action)
+	local mailbox = mailProcessor.new(self, action)
 	mailbox.process()
 
 end
 
-local takeGold = function()
+local takeGold = function(self)
 
 	local action = function(index)
 		TakeInboxMoney(index)
 	end
 
-	local mailbox = mailProcessor.new(action)
+	local mailbox = mailProcessor.new(self, action)
 	mailbox.process()
 
 end
