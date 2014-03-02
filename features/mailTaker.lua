@@ -48,7 +48,7 @@ local mailProcessor = {
 
 			local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(currentItem)
 
-			if ((numItems and numItems > 0) or (money and money > 0)) and not cod then
+			if ((numItems and numItems > 0) or (money and money > 0)) and cod <= 0 then
 				action(currentItem)
 			end
 
