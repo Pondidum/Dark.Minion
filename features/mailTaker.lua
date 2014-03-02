@@ -29,7 +29,7 @@ local mailProcessor = {
 
 			local lastItem = GetInboxNumItems()
 
-			while lastItem > 0
+			while lastItem > 0 do
 
 				if not InboxFrame:IsVisible() then
 					finally()
