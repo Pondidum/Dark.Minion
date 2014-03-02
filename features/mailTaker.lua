@@ -102,7 +102,7 @@ local createUi = function()
 	goldButton:SetText("Take Gold")
 	goldButton:SetScript("OnClick", takeGold)
 
-	itemsButton:SetPoint("TOPLEFT", InboxFrame, "TOPLEFT", 80, -40)
+	itemsButton:SetPoint("TOPLEFT", InboxFrame, "TOPLEFT", 80, -28)
 	goldButton:SetPoint("LEFT", itemsButton, "RIGHT", 10, 0)
 
 end
