@@ -12,7 +12,7 @@ local mailProcessor = {
 		searcher:SetLooping("REPEAT")
 
 		local a = searcher:CreateAnimation()
-		a:SetDuration(0.5)
+		a:SetDuration(0.8)
 
 		local currentItem = 0
 
