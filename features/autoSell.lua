@@ -5,7 +5,7 @@ local core = Dark.core
 local events = core.events.new()
 
 local NUM_BAG_FRAMES = NUM_BAG_FRAMES
-local ITEM_QUALITY_POOR = ITEM_QUALITY_POOR
+local LE_ITEM_QUALITY_POOR = LE_ITEM_QUALITY_POOR
 
 local GetContainerNumSlots = GetContainerNumSlots
 local GetContainerItemLink = GetContainerItemLink
@@ -30,7 +30,7 @@ local autoSell = function()
 
 				local _, _, quality, _, _, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
 
-				if quality == ITEM_QUALITY_POOR then
+				if quality == LE_ITEM_QUALITY_POOR then
 
 					local _, count = GetContainerItemInfo(bag, slot)
 					local price = vendorPrice * count
