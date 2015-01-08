@@ -26,9 +26,20 @@ local createUi = function()
 	local total = 0
 	local maxShipments = 0
 
+	local maxedOut = function()
+		return C_Garrison.GetNumPendingShipments() == maxShipments
+	end
+
 	local onCrafterInfo = function(self, event, success, active, max, plotID)
 		maxShipments = max
+
+		if maxedOut() then
+			extra:Disable()
+		else
+			extra:Enable()
+		end
 	end
+
 
 	local onDisplay = function()
 		extra:SetScript("OnUpdate", nil)
@@ -46,8 +57,9 @@ local createUi = function()
 
 			C_Garrison.RequestShipmentCreation()
 
-			 if C_Garrison.GetNumPendingShipments() == maxShipments then
+			 if maxedOut() then
 		        extra:SetScript("OnUpdate", nil)
+				extra:Disable()
      		end
 		end
 	end
