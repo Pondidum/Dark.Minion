@@ -21,6 +21,7 @@ local createUi = function()
 	startButton:ClearAllPoints()
 	startButton:SetPoint("RIGHT", extra, "LEFT", 0, 0)
 
+
 	local throttle = 0.3
 	local total = 0
 	local maxShipments = 0
@@ -30,7 +31,7 @@ local createUi = function()
 	end
 
 	local onDisplay = function()
-		startButton:SetScript("OnUpdate", nil)
+		extra:SetScript("OnUpdate", nil)
 	end
 
 	events.register("SHIPMENT_CRAFTER_OPENED", onDisplay)
@@ -46,14 +47,14 @@ local createUi = function()
 			C_Garrison.RequestShipmentCreation()
 
 			 if C_Garrison.GetNumPendingShipments() == maxShipments then
-		        self:SetScript("OnUpdate", nil)
+		        extra:SetScript("OnUpdate", nil)
      		end
 		end
 	end
 
-	startButton:SetScript("OnClick", function()
+	extra:SetScript("OnClick", function()
 		total = 0
-		startButton:SetScript("OnUpdate", queueOrders)
+		extra:SetScript("OnUpdate", queueOrders)
 	end)
 
 end
@@ -63,7 +64,14 @@ ns.features.add({
 	name = "AutoWorkOrder",
 
 	initialise = function()
-		createUi()
+		events.register("ADDON_LOADED", function(self, event, addonName)
+
+			if addonName == "Blizzard_GarrisonUI" then
+				events.unregister("ADDON_LOADED")
+				createUi()
+			end
+
+		end)
 	end,
 
 	enable = function()
