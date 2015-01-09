@@ -1,8 +1,7 @@
 local addon, ns = ...
 local config = ns.config
 
-local core = Dark.core
-local events = core.events.new()
+local events = ns.lib.events.new()
 
 local mailProcessor = {
 

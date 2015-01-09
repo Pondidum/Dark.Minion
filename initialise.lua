@@ -1,5 +1,11 @@
 local addon, ns = ...
 
+local core = Dark.core
+
+ns.lib = {
+	events = core.events,
+}
+
 local featureMeta = {
 	name = "Unknown",
 	enable = function() end,
