@@ -39,13 +39,12 @@ local createUi = function()
 		end
 	end
 
-
-	local onDisplay = function()
+	local stopProcessing = function()
 		extra:SetScript("OnUpdate", nil)
 	end
 
-	events.register("SHIPMENT_CRAFTER_OPENED", onDisplay)
-	events.register("SHIPMENT_CRAFTER_CLOSED", onDisplay)
+	events.register("SHIPMENT_CRAFTER_OPENED", stopProcessing)
+	events.register("SHIPMENT_CRAFTER_CLOSED", stopProcessing)
 	events.register("SHIPMENT_CRAFTER_INFO", onCrafterInfo)
 
 	local queueOrders = function(self, elapsed)
@@ -57,7 +56,7 @@ local createUi = function()
 			C_Garrison.RequestShipmentCreation()
 
 			 if maxedOut() then
-		        extra:SetScript("OnUpdate", nil)
+		        stopProcessing()
 				extra:Disable()
      		end
 		end
