@@ -1,96 +1,111 @@
 local addon, ns = ...
-local config = ns.config
 
-local events = ns.lib.events.new()
+local autoWorkOrder = Darker.class:extend({
 
-local createUi = function()
+	ctor = function(self)
+		self:include(Darker.events)
 
-	local parent = GarrisonCapacitiveDisplayFrame
-	local startButton = GarrisonCapacitiveDisplayFrame.StartWorkOrderButton
+		self:register("ADDON_LOADED")
+	end,
 
-	local extraWidth = 40
-	local extraHeight = startButton:GetHeight()
+	ADDON_LOADED = function(self, addonName)
 
-	local extra = CreateFrame("Button", "DarkMinionAutoWorkOrder", parent, "MagicButtonTemplate")
-	extra:SetSize(extraWidth, extraHeight)
-	extra:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -6, 4)
-	extra:SetText("All")
+		if addonName ~= "Blizzard_GarrisonUI" then
+			return
+		end
 
-	startButton:SetWidth(startButton:GetWidth() - extraWidth)
-	startButton:ClearAllPoints()
-	startButton:SetPoint("RIGHT", extra, "LEFT", 0, 0)
+		self:unregister("ADDON_LOADED")
+		self:buildInterface()
 
+		self:register("SHIPMENT_CRAFTER_OPENED")
+		self:register("SHIPMENT_CRAFTER_CLOSED")
+		self:register("SHIPMENT_CRAFTER_INFO")
 
-	local throttle = 0.3
-	local total = 0
-	local maxShipments = 0
+	end,
 
-	local maxedOut = function()
-		return C_Garrison.GetNumPendingShipments() == maxShipments
-	end
+	SHIPMENT_CRAFTER_OPENED = function(self)
+		self:stopProcessing()
+	end,
 
-	local onCrafterInfo = function(self, event, success, active, max, plotID)
-		maxShipments = max
+	SHIPMENT_CRAFTER_CLOSED = function(self)
+		self:stopProcessing()
+	end,
 
-		if maxedOut() then
-			extra:Disable()
+	SHIPMENT_CRAFTER_INFO = function(self, success, active, max, plotID)
+
+		self.maxShipments = max
+
+		if self:isMaxedOut() then
+			self.button:Disable()
 		else
-			extra:Enable()
+			self.button:Enable()
 		end
-	end
 
-	local stopProcessing = function()
-		extra:SetScript("OnUpdate", nil)
-	end
+	end,
 
-	events.register("SHIPMENT_CRAFTER_OPENED", stopProcessing)
-	events.register("SHIPMENT_CRAFTER_CLOSED", stopProcessing)
-	events.register("SHIPMENT_CRAFTER_INFO", onCrafterInfo)
+	buildInterface = function(self)
 
-	local queueOrders = function(self, elapsed)
-		total = total + elapsed
+		local parent = GarrisonCapacitiveDisplayFrame
+		local startButton = GarrisonCapacitiveDisplayFrame.StartWorkOrderButton
 
-		if total > throttle then
-			total = 0
+		local extraWidth = 40
+		local extraHeight = startButton:GetHeight()
 
-			C_Garrison.RequestShipmentCreation()
+		local autoButton = CreateFrame("Button", "DarkMinionAutoWorkOrder", parent, "MagicButtonTemplate")
+		autoButton:SetSize(extraWidth, extraHeight)
+		autoButton:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -6, 4)
+		autoButton:SetText("All")
 
-			 if maxedOut() then
-		        stopProcessing()
-				extra:Disable()
-     		end
-		end
-	end
+		startButton:SetWidth(startButton:GetWidth() - extraWidth)
+		startButton:ClearAllPoints()
+		startButton:SetPoint("RIGHT", autoButton, "LEFT", 0, 0)
 
-	extra:SetScript("OnClick", function()
-		total = 0
-		extra:SetScript("OnUpdate", queueOrders)
-	end)
+		autoButton:SetScript("OnClick", function()
+			self:startProcessing()
+		end)
 
-end
+		self.button = autoButton
+
+	end,
+
+	isMaxedOut = function(self)
+		return C_Garrison.GetNumPendingShipments() == self.maxShipments
+	end,
+
+	stopProcessing = function(self)
+		self.button:SetScript("OnUpdate", nil)
+	end,
+
+	startProcessing = function(self)
+
+		local throttle = 0.3
+		local total = 0
+		local maxShipments = 0
+
+		self.button:SetScript("OnUpdate", function(s, elapsed)
+			total = total + elapsed
+
+			if total > throttle then
+				total = 0
+
+				C_Garrison.RequestShipmentCreation()
+
+				 if self:isMaxedOut() then
+			        self:stopProcessing()
+					self.button:Disable()
+	     		end
+			end
+		end)
+
+	end,
+
+})
 
 ns.features.add({
 
 	name = "AutoWorkOrder",
 
 	initialise = function()
-		events.register("ADDON_LOADED", function(self, event, addonName)
-
-			if addonName == "Blizzard_GarrisonUI" then
-				events.unregister("ADDON_LOADED")
-				createUi()
-			end
-
-		end)
-	end,
-
-	enable = function()
-	end,
-
-	disable = function()
-	end,
-
-	isEnabled = function()
-	end,
-
+		autoWorkOrder:new()
+	end
 })

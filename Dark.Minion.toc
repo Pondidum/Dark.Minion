@@ -3,7 +3,7 @@
 ## Author: Darkend / DarkStorm / Zenedar / EU
 ## Version: 0.0.2
 ## Notes: Small helpers to make life easier.
-## RequiredDeps: Dark.Core
+## RequiredDeps: Dark.Core, Dark
 
 config.lua
 initialise.lua
