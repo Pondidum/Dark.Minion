@@ -1,42 +1,44 @@
 local addon, ns = ...
-local config = ns.config
 
-local GetMerchantItemLink = GetMerchantItemLink
-local GetItemInfo = GetItemInfo
-local BuyMerchantItem = BuyMerchantItem
-
-local original = MerchantItemButton_OnModifiedClick
-local custom = function(self, ...)
-
-	if IsAltKeyDown() then
-
-		local itemLink = GetMerchantItemLink(self:GetID())
-		local maxStack = select(8, GetItemInfo(itemLink))
-
-		if maxStack and maxStack > 1 then
-			BuyMerchantItem(self:GetID(), maxStack)
-		end
-
-	end
-
-	original(self, ...)
-
-end
-
-ns.features.add({
+local buyStack = Darker.class:extend({
 
 	name = "Buy Whole Stack",
 
-	enable = function()
-		MerchantItemButton_OnModifiedClick = custom
+	ctor = function(self)
+
+		self.original = MerchantItemButton_OnModifiedClick
+
+		self.custom = function(button, ...)
+
+			if IsAltKeyDown() then
+
+				local itemLink = GetMerchantItemLink(button:GetID())
+				local maxStack = select(8, GetItemInfo(itemLink))
+
+				if maxStack and maxStack > 1 then
+					BuyMerchantItem(button:GetID(), maxStack)
+				end
+
+			end
+
+			self.original(button, ...)
+
+		end
+
 	end,
 
-	disable = function()
-		MerchantItemButton_OnModifiedClick = original
+	enable = function(self)
+		MerchantItemButton_OnModifiedClick = self.custom
+	end,
+
+	disable = function(self)
+		MerchantItemButton_OnModifiedClick = self.original
 	end,
 
 	isEnabled = function()
-		return MerchantItemButton_OnModifiedClick == custom
+		return MerchantItemButton_OnModifiedClick ~= self.original
 	end,
 
 })
+
+ns.features.add(buyStack)
