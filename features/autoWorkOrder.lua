@@ -1,9 +1,9 @@
 local addon, ns = ...
 
-local autoWorkOrder = Darker.class:extend({
+local autoWorkOrder = ns.lib.class:extend({
 
 	ctor = function(self)
-		self:include(Darker.events)
+		self:include(ns.lib.events)
 
 		self:register("ADDON_LOADED")
 	end,

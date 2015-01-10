@@ -1,11 +1,11 @@
 local addon, ns = ...
 
-local autoRepair = Darker.class:extend({
+local autoRepair = ns.lib.class:extend({
 
 	name = "AutoRepair",
 
 	ctor = function(self)
-		self:include(Darker.events)
+		self:include(ns.lib.events)
 	end,
 
 	enable = function(self)

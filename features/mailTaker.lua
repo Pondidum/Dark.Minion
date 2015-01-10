@@ -1,9 +1,9 @@
 local addon, ns = ...
 
-local mailer = Darker.class:extend({
+local mailer = ns.lib.class:extend({
 
 	ctor = function(self)
-		self:include(Darker.events)
+		self:include(ns.lib.events)
 	end,
 
 	enable = function(self)

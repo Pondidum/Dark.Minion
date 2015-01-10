@@ -1,9 +1,10 @@
 local addon, ns = ...
 
-local core = Dark.core
+local dark = Darker
 
 ns.lib = {
-	events = core.events,
+	class = dark.class,
+	events = dark.events,
 }
 
 local features = {}

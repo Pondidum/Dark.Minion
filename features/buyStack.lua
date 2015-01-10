@@ -1,6 +1,6 @@
 local addon, ns = ...
 
-local buyStack = Darker.class:extend({
+local buyStack = ns.lib.class:extend({
 
 	name = "Buy Whole Stack",
 
