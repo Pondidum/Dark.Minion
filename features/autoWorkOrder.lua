@@ -8,6 +8,9 @@ local autoWorkOrder = Darker.class:extend({
 		self:register("ADDON_LOADED")
 	end,
 
+	enable = function(self)
+	end,
+
 	ADDON_LOADED = function(self, addonName)
 
 		if addonName ~= "Blizzard_GarrisonUI" then
@@ -101,11 +104,4 @@ local autoWorkOrder = Darker.class:extend({
 
 })
 
-ns.features.add({
-
-	name = "AutoWorkOrder",
-
-	initialise = function()
-		autoWorkOrder:new()
-	end
-})
+ns.features.add(autoWorkOrder)
