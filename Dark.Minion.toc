@@ -5,7 +5,6 @@
 ## Notes: Small helpers to make life easier.
 ## RequiredDeps: Dark
 
-config.lua
 initialise.lua
 
 features\autoSell.lua
