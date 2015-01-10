@@ -1,130 +1,115 @@
 local addon, ns = ...
-local config = ns.config
 
-local events = ns.lib.events.new()
+local mailer = Darker.class:extend({
 
-local mailProcessor = {
+	ctor = function(self)
+		self:include(Darker.events)
+	end,
 
-	new = function(host, action)
+	enable = function(self)
 
-		local searcher = host:CreateAnimationGroup()
+		self:buildInterface()
+		self:setupTimer()
+
+	end,
+
+	buildInterface = function(self)
+
+		local itemsButton = CreateFrame("Button", "DarkMinionTakeAll", InboxFrame, "UIPanelButtonTemplate")
+		itemsButton:SetSize(60, 25)
+		itemsButton:SetText("Take All")
+
+		local goldButton = CreateFrame("Button", "DarkMinionTakeGold", InboxFrame, "UIPanelButtonTemplate")
+		goldButton:SetSize(60, 25)
+		goldButton:SetText("Take Gold")
+
+		itemsButton:SetPoint("TOPLEFT", InboxFrame, "TOPLEFT", 80, -28)
+		goldButton:SetPoint("LEFT", itemsButton, "RIGHT", 10, 0)
+
+
+		itemsButton:SetScript("OnClick", function(button)
+
+			self.action = function(index)
+				AutoLootMailItem(index)
+			end
+
+			self:process()
+
+		end)
+
+		goldButton:SetScript("OnClick", function(button)
+
+			self.action = function(index)
+				TakeInboxMoney(index)
+			end
+
+			self:process()
+
+		end)
+
+		self.parent = InboxFrame
+		self.itemsButton = itemsButton
+		self.goldButton = goldButton
+
+	end,
+
+	setupTimer = function(self)
+
+		local searcher = self.parent:CreateAnimationGroup()
 		searcher:SetLooping("REPEAT")
 
 		local a = searcher:CreateAnimation()
 		a:SetDuration(0.8)
 
-		local currentItem = 0
-
-		local finally = function(message)
-			print("Dark.MinionMail:", message)
-			searcher:Stop()
-			events.unregister("UI_ERROR_MESSAGE")
-		end
-
-		local onError = function(sender, event, message)
-			if message == ERR_INV_FULL then
-				finally("Stopped, Inventory was full.")
-			end
-		end
-
-		local process = function()
-			currentItem = GetInboxNumItems()
-			events.register("UI_ERROR_MESSAGE", onError)
-			searcher:Play()
-		end
+		self.currentItem = 0
+		self.action = function() end
 
 		searcher:SetScript("OnLoop", function()
 
-			if currentItem <= 0 then
-				finally("Reached the end.")
+			if self.currentItem <= 0 then
+				self:finally("Reached the end.")
 				return
 			end
 
 			if not InboxFrame:IsVisible() then
-				finally("No Inbox in range.")
+				self:finally("No Inbox in range.")
 				return
 			end
 
-			local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(currentItem)
+			local mailIcon, stationaryIcon, sender, subject, money, cod, daysLeft, numItems = GetInboxHeaderInfo(self.currentItem)
 
 			if ((numItems and numItems > 0) or (money and money > 0)) and cod <= 0 then
-				action(currentItem)
+				self.action(self.currentItem)
 			end
 
-			currentItem = currentItem - 1
+			self.currentItem = self.currentItem - 1
 
 		end)
 
-		local this = {
-			process = process,
-		}
+		self.searcher = searcher
+	end,
 
-		return this
+
+	process = function(self)
+		self:register("UI_ERROR_MESSAGE", onError)
+		self.currentItem = GetInboxNumItems()
+		self.searcher:Play()
+	end,
+
+	finally = function(self, message)
+
+		self.searcher:Stop()
+		self:unregister("UI_ERROR_MESSAGE")
+
+		print("Dark.MinionMail:", message)
 
 	end,
 
-}
-
-
-
-local takeAll = function(self)
-
-	local action = function(index)
-		AutoLootMailItem(index)
+	UI_ERROR_MESSAGE = function(sender, event, message)
+		if message == ERR_INV_FULL then
+			self:finally("Stopped, Inventory was full.")
+		end
 	end
-
-	local mailbox = mailProcessor.new(self, action)
-	mailbox.process()
-
-end
-
-local takeGold = function(self)
-
-	local action = function(index)
-		TakeInboxMoney(index)
-	end
-
-	local mailbox = mailProcessor.new(self, action)
-	mailbox.process()
-
-end
-
-local createUi = function()
-
-	local itemsButton = CreateFrame("Button", "DarkMinionTakeAll", InboxFrame, "UIPanelButtonTemplate")
-	itemsButton:SetSize(60, 25)
-	itemsButton:SetText("Take All")
-	itemsButton:SetScript("OnClick", takeAll)
-
-	local goldButton = CreateFrame("Button", "DarkMinionTakeGold", InboxFrame, "UIPanelButtonTemplate")
-	goldButton:SetSize(60, 25)
-	goldButton:SetText("Take Gold")
-	goldButton:SetScript("OnClick", takeGold)
-
-	itemsButton:SetPoint("TOPLEFT", InboxFrame, "TOPLEFT", 80, -28)
-	goldButton:SetPoint("LEFT", itemsButton, "RIGHT", 10, 0)
-
-end
-
-
-ns.features.add({
-
-	name = "Mail Taker",
-
-	initialise = function()
-		createUi()
-	end,
-
-	enable = function()
-
-	end,
-
-	disable = function()
-
-	end,
-
-	isEnabled = function()
-
-	end,
-
 })
+
+ns.features.add(mailer)
