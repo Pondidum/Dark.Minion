@@ -1,43 +1,51 @@
 local addon, ns = ...
-local config = ns.config
 
-local events = ns.lib.events.new()
+local autoRepair = Darker.class:extend({
 
-local NUM_BAG_FRAMES = NUM_BAG_FRAMES
-local LE_ITEM_QUALITY_POOR = LE_ITEM_QUALITY_POOR
+	name = "AutoRepair",
 
-local GetContainerNumSlots = GetContainerNumSlots
-local GetContainerItemLink = GetContainerItemLink
-local GetContainerItemID = GetContainerItemID
-local GetItemInfo = GetItemInfo
-local GetContainerItemInfo = GetContainerItemInfo
-local UseContainerItem = UseContainerItem
-local PickupMerchantItem = PickupMerchantItem
+	ctor = function(self)
+		self:include(Darker.events)
+	end,
 
-local autoSell = function()
+	enable = function(self)
+		self:register("MERCHANT_SHOW")
+	end,
 
-	local total = 0
+	disable = function(self)
+		self:unregister("MERCHANT_SHOW")
+	end,
 
-	for bag = 0, NUM_BAG_FRAMES do
+	isEnabled = function(self)
+		return self:isRegistered("MERCHANT_SHOW")
+	end,
 
-		for slot = 1, GetContainerNumSlots(bag) do
+	MERCHANT_SHOW = function(self)
 
-			local itemLink = GetContainerItemLink(bag, slot)
-			local itemID = GetContainerItemID(bag, slot)
+		local total = 0
 
-			if itemLink and itemID then
+		for bag = 0, NUM_BAG_FRAMES do
 
-				local _, _, quality, _, _, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
+			for slot = 1, GetContainerNumSlots(bag) do
 
-				if quality == LE_ITEM_QUALITY_POOR then
+				local itemLink = GetContainerItemLink(bag, slot)
+				local itemID = GetContainerItemID(bag, slot)
 
-					local _, count = GetContainerItemInfo(bag, slot)
-					local price = vendorPrice * count
+				if itemLink and itemID then
 
-					UseContainerItem(bag, slot)
-					PickupMerchantItem()
+					local _, _, quality, _, _, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
 
-					total = total + price
+					if quality == LE_ITEM_QUALITY_POOR then
+
+						local _, count = GetContainerItemInfo(bag, slot)
+						local price = vendorPrice * count
+
+						UseContainerItem(bag, slot)
+						PickupMerchantItem()
+
+						total = total + price
+
+					end
 
 				end
 
@@ -45,34 +53,18 @@ local autoSell = function()
 
 		end
 
-	end
+		if total > 0 then
 
-	if total > 0 then
+			local gold = math.floor(total / 10000) or 0
+			local silver = math.floor((total % 10000) / 100) or 0
+			local copper = total % 100
 
-		local gold = math.floor(total / 10000) or 0
-		local silver = math.floor((total % 10000) / 100) or 0
-		local copper = total % 100
+			DEFAULT_CHAT_FRAME:AddMessage("Your trash has been sold for |cffffffff"..gold.."g "..silver.."s "..copper.."c|r.", 255, 255, 0)
 
-		DEFAULT_CHAT_FRAME:AddMessage("Your trash has been sold for |cffffffff"..gold.."g "..silver.."s "..copper.."c|r.", 255, 255, 0)
+		end
 
-	end
-
-end
-
-ns.features.add({
-
-	name = "AutoSell",
-
-	enable = function()
-		events.register("MERCHANT_SHOW", autoSell)
-	end,
-
-	disable = function()
-		events.unregister("MERCHANT_SHOW", autoSell)
-	end,
-
-	isEnabled = function()
-		return events.isRegistered("MERCHANT_SHOW")
 	end,
 
 })
+
+ns.features.add(autoRepair)
