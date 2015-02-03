@@ -6,6 +6,8 @@ local autoRepair = ns.lib.class:extend({
 
 	ctor = function(self)
 		self:include(ns.lib.events)
+
+		self:buildUI()
 	end,
 
 	enable = function(self)
@@ -18,6 +20,22 @@ local autoRepair = ns.lib.class:extend({
 
 	isEnabled = function(self)
 		return self:isRegistered("MERCHANT_SHOW")
+	end,
+
+	buildUI = function(self)
+
+		local parent = MerchantFrame
+		local button = CreateFrame("Button", "DarkMinionAutoSell", parent, "MagicButtonTemplate")
+
+		button:ClearAllPoints()
+		button:SetPoint("BOTTOM", parent, "BOTTOM", -6, 5)
+		button:SetPoint("RIGHT", MerchantRepairAllButton, "RIGHT", 5, 0)
+		button:SetText("Sell Greys")
+
+		button:SetScript("OnClick", function()
+			self:MERCHANT_SHOW()
+		end)
+
 	end,
 
 	MERCHANT_SHOW = function(self)
