@@ -61,7 +61,7 @@ local autoWorkOrder = ns.lib.class:extend({
 
 		startButton:SetWidth(startButton:GetWidth() - extraWidth)
 		startButton:ClearAllPoints()
-		startButton:SetPoint("RIGHT", autoButton, "LEFT", 0, 0)
+		startButton:SetPoint("RIGHT", autoButton, "LEFT", -1, 0)
 
 		autoButton:SetScript("OnClick", function()
 			self:startProcessing()
