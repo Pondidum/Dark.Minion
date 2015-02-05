@@ -28,7 +28,7 @@ local autoRepair = ns.lib.class:extend({
 		local button = CreateFrame("Button", "DarkMinionAutoSell", parent, "MagicButtonTemplate")
 
 		button:ClearAllPoints()
-		button:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", -6, 5)
+		button:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 3, 3)
 		button:SetText("Sell Greys")
 
 		button:SetScript("OnClick", function()
