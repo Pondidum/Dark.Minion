@@ -11,6 +11,5 @@ features\autoSell.lua
 features\autoRepair.lua
 features\buyStack.lua
 features\mailTaker.lua
-features\autoWorkOrder.lua
 
 run.lua
